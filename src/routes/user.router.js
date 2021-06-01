@@ -1,15 +1,34 @@
 const router = require("express").Router();
-const { register, getProfileUser, getUserById } = require("../controller/user");
+const {
+  register,
+  getProfileUser,
+  getUserById,
+  storeUserRefreshJWT,
+  getUserByEmail,
+  updateNewPassword,
+} = require("../controller/user");
 const {
   hashPassword,
   comparePassword,
   createAccessJWT,
   createRefreshJWT,
 } = require("../services/auth");
-
+const {
+  setPasswordReset,
+  getPinEmail,
+  deletePin,
+} = require("../controller/resetPin");
 const { userAuth } = require("../middlewares/authorization.middleware");
+const {
+  createNewUserValid,
+  resetPasswordReqValid,
+  updatePasswordReqValid,
+} = require("../middlewares/formAuthorization");
+const { deleteJWT } = require("../services/redis");
+const { emailProcessor } = require("../services/email");
+
 //REGISTER
-router.post("/register", async (req, res) => {
+router.post("/register", createNewUserValid, async (req, res) => {
   const { username, email, password } = req.body;
   try {
     const passwordHashed = await hashPassword(password);
@@ -37,7 +56,6 @@ router.post("/login", async (req, res) => {
     });
 
   const user = await getProfileUser(username);
-  console.log(user);
   const passFromDb = user && user._id ? user.password : null;
 
   if (!passFromDb)
@@ -73,6 +91,80 @@ router.get("/:id", userAuth, async (req, res) => {
     res.json({ status: user });
   } catch (error) {
     console.log(error);
+  }
+});
+
+// Log out
+
+router.delete("/logout", userAuth, async (req, res) => {
+  try {
+    const { authorization } = req.headers;
+    // this data coming form database
+    const _id = req.userId;
+    deleteJWT(authorization);
+
+    // delete refresh token from mongodb
+    const result = await storeUserRefreshJWT(_id, "");
+
+    if (result._id) {
+      return res.json({ status: "success", message: "Log out successfully" });
+    }
+    res.json({ status: "error", message: "cannot log out, please try later" });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.post("/reset-password", resetPasswordReqValid, async (req, res) => {
+  const { email } = req.body;
+  const user = await getUserByEmail(email);
+  // console.log(user);
+
+  if (user && user._id) {
+    const setPin = await setPasswordReset(email);
+    const result = await emailProcessor({
+      email,
+      pin: setPin.pin,
+      type: "request-new-password",
+    });
+    return res.json({
+      status: "success",
+      message:
+        "We have sent the reset pin by email, please check your email!!!",
+    });
+  }
+  return res.json({
+    status: "error",
+    message: "We have sent the reset pin by email, please check your email!!!",
+  });
+});
+
+router.patch("/reset-password", updatePasswordReqValid, async (req, res) => {
+  const { email, pin, newPassword } = req.body;
+  const getPin = await getPinEmail(email, pin);
+
+  if (getPin._id) {
+    const databaseDate = getPin.addedAt;
+    const expiredIn = 1;
+
+    let expiredDate = databaseDate.setDate(databaseDate.getDate() + expiredIn);
+    const today = new Date();
+    if (today > expiredDate) {
+      return res.json({
+        status: "error",
+        message: "Invalid Pin or Expired Pin",
+      });
+    }
+    const hashedNewPassword = await hashPassword(newPassword);
+    const user = await updateNewPassword(email, hashedNewPassword);
+    if (user._id) {
+      await emailProcessor({ email, type: "password-update-success" });
+      await deletePin(email, pin);
+      return res.json({
+        status: "success",
+        message: "Your password has been updated successfully",
+      });
+    }
   }
 });
 

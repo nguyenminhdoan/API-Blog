@@ -15,6 +15,21 @@ exports.getProfileUser = (username) => {
     }
   });
 };
+exports.getUserByEmail = (email) => {
+  return new Promise((resolve, reject) => {
+    if (!email) return false;
+    try {
+      User.findOne({ email }, (error, data) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(data);
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 
 exports.getUserById = (_id) => {
   return new Promise((resolve, reject) => {
@@ -32,7 +47,31 @@ exports.getUserById = (_id) => {
     }
   });
 };
+exports.updateNewPassword = (email, newHashPassword) => {
+  return new Promise((resolve, reject) => {
+    try {
+      User.findOneAndUpdate(
+        {
+          email,
+        },
+        {
+          $set: {
+            password: newHashPassword,
+          },
+        },
+        {
+          new: true,
+        }
+      )
+        .then((data) => resolve(data))
 
+        .catch((error) => reject(error));
+    } catch (error) {
+      reject(error);
+      console.log(error);
+    }
+  });
+};
 exports.register = async (newObjUser) => {
   console.log(newObjUser);
   return new Promise((resolve, reject) => {
