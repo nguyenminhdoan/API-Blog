@@ -2,6 +2,9 @@ const { Schema, model } = require("mongoose");
 
 const PostSchema = new Schema(
   {
+    clientId: {
+      type: Schema.Types.ObjectId,
+    },
     title: {
       type: String,
       required: true,

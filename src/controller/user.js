@@ -73,7 +73,6 @@ exports.updateNewPassword = (email, newHashPassword) => {
   });
 };
 exports.register = async (newObjUser) => {
-  console.log(newObjUser);
   return new Promise((resolve, reject) => {
     User(newObjUser)
       .save()

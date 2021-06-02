@@ -8,7 +8,6 @@ const randomPinPassword = (length) => {
   }
   return pin;
 };
-module.exports = { randomPinPassword };
 
 const setPasswordReset = async (email) => {
   // create random pin (6 digits)
