@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-const CategorySchema = new mongoose.Schema(
+const CategorySchema = new Schema(
   {
     name: {
       type: String,

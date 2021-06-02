@@ -7,9 +7,10 @@ const {
   getAllPost,
 } = require("../controller/post");
 const { userAuth } = require("../middlewares/authorization.middleware");
+const { createNewPostValid } = require("../middlewares/formAuthorization");
 
 // create new post
-router.post("/", userAuth, async (req, res) => {
+router.post("/", createNewPostValid, userAuth, async (req, res) => {
   try {
     const { title, desc, photo, username, categories } = req.body;
     const userId = req.userId;
@@ -29,9 +30,10 @@ router.post("/", userAuth, async (req, res) => {
 });
 
 // update post
-router.put("/:id", async (req, res) => {
-  const id = req.params.id;
+router.put("/:id", userAuth, async (req, res) => {
   const { username, desc, title } = req.body;
+  const id = req.userId;
+
   try {
     const post = await findPostById(id);
     if (post.username === username) {
@@ -47,8 +49,8 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete post
-router.delete("/:id", async (req, res) => {
-  const id = req.params.id;
+router.delete("/:id", userAuth, async (req, res) => {
+  const id = req.userId;
   const { username } = req.body;
   try {
     const post = await findPostById(id);
@@ -68,18 +70,22 @@ router.delete("/:id", async (req, res) => {
 });
 
 // Get specific post
-router.get("/:id", async (req, res) => {
+router.get("/:id", userAuth, async (req, res) => {
   const id = req.params.id;
+
   try {
     const post = await findPostById(id);
-    return res.json({ status: "success", data: post });
+    if (post._id) {
+      return res.json({ status: "success", data: post });
+    }
+    res.json({ status: "error", message: "Post not found  " });
   } catch (error) {
     console.log(error);
     res.json({ status: "error", message: error.message });
   }
 });
 
-// Get all posts
+// Get all posts by users
 router.get("/", userAuth, async (req, res) => {
   try {
     const userId = req.userId;
