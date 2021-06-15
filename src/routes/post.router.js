@@ -10,7 +10,7 @@ const { userAuth } = require("../middlewares/authorization.middleware");
 const { createNewPostValid } = require("../middlewares/formAuthorization");
 
 // create new post
-router.post("/", createNewPostValid, userAuth, async (req, res) => {
+router.post("/", userAuth, async (req, res) => {
   try {
     const { title, desc, photo, username, categories } = req.body;
     const userId = req.userId;
@@ -70,7 +70,7 @@ router.delete("/:id", userAuth, async (req, res) => {
 });
 
 // Get specific post
-router.get("/:id", userAuth, async (req, res) => {
+router.get("/:id", async (req, res) => {
   const id = req.params.id;
 
   try {
@@ -85,11 +85,12 @@ router.get("/:id", userAuth, async (req, res) => {
   }
 });
 
-// Get all posts by users
-router.get("/", userAuth, async (req, res) => {
+// Get all posts
+router.get("/", async (req, res) => {
   try {
-    const userId = req.userId;
-    const result = await getAllPost(userId);
+    const username = req.query.user;
+    const catName = req.query.cat;
+    const result = await getAllPost(username, catName);
     if (result.length) {
       return res.json({
         status: "success",

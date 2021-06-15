@@ -27,6 +27,22 @@ const {
 const { deleteJWT } = require("../services/redis");
 const { emailProcessor } = require("../services/email");
 
+// GET user profile
+router.get("/", userAuth, async (req, res) => {
+  const _id = req.userId;
+  const userProfile = await getUserById(_id);
+  const { username, email, profilePic } = userProfile;
+
+  res.json({
+    user: {
+      _id: _id,
+      username: username,
+      email: email,
+      profilePic: profilePic,
+    },
+  });
+});
+
 //REGISTER
 router.post("/register", createNewUserValid, async (req, res) => {
   const { username, email, password } = req.body;
@@ -40,9 +56,21 @@ router.post("/register", createNewUserValid, async (req, res) => {
     };
 
     const newUser = await register(newObjUser);
-    return res.json({ status: newUser });
+    return res.json({
+      status: "success",
+      message: "new user has been created",
+    });
   } catch (err) {
-    res.status(500).json(err);
+    // res.status(500).json(err);
+    let msg = "E11000 duplicate key error collection";
+    res.json({
+      status: "error",
+      message: `${
+        msg
+          ? `Email has already exist, please choose another email`
+          : err.message
+      }`,
+    });
   }
 });
 

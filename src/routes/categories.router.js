@@ -12,7 +12,7 @@ router.post("/", userAuth, async (req, res) => {
   }
 });
 
-router.get("/", userAuth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const cats = await findCate();
     res.json({ status: "success", data: cats });

@@ -48,10 +48,11 @@ exports.updatePasswordReqValid = (req, res, next) => {
 };
 
 exports.createNewPostValid = (req, res, next) => {
-  const schema = Joi.object({ title, desc, username });
+  const schema = Joi.object({ title, desc, username, photo });
 
   const value = schema.validate(req.body);
   if (value.error) {
     return res.json({ status: "error", message: value.error.message });
   }
+  next();
 };

@@ -61,12 +61,29 @@ exports.deletePost = (_id) => {
   });
 };
 
-exports.getAllPost = (clientId) => {
+exports.getAllPost = (username, catName) => {
   return new Promise((resolve, reject) => {
     try {
-      Post.find({ clientId })
-        .then((data) => resolve(data))
-        .catch((error) => reject(error));
-    } catch (error) {}
+      let posts;
+      if (username) {
+        posts = Post.find({ username })
+          .then((data) => resolve(data))
+          .catch((error) => reject(error));
+      } else if (catName) {
+        posts = posts = Post.find({
+          categories: {
+            $in: [catName],
+          },
+        })
+          .then((data) => resolve(data))
+          .catch((error) => reject(error));
+      } else {
+        posts = Post.find()
+          .then((data) => resolve(data))
+          .catch((error) => reject(error));
+      }
+    } catch (error) {
+      reject(error);
+    }
   });
 };
