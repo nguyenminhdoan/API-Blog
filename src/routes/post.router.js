@@ -49,19 +49,24 @@ router.put("/:id", userAuth, async (req, res) => {
 });
 
 // Delete post
-router.delete("/:id", userAuth, async (req, res) => {
-  const id = req.userId;
-  const { username } = req.body;
+router.delete("/:_id", userAuth, async (req, res) => {
+  const clientId = req.userId;
+  const { _id } = req.params;
   try {
-    const post = await findPostById(id);
-    if (post.username === username) {
-      await deletePost(id);
+    const result = await deletePost({ _id, clientId });
+    console.log(result);
+
+    if (result) {
       return res.json({
         status: "success",
         message: "Post has been deleted...",
+        result,
       });
     } else {
-      res.json({ status: "error", message: "you can only delete your post!" });
+      return res.json({
+        status: "error",
+        message: "Something wrong please try again",
+      });
     }
   } catch (error) {
     console.log(error);

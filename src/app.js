@@ -10,6 +10,7 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use("/images", express.static(path.join(__dirname, "/images")));
+
 require("../src/config/mongo-connect");
 app.use(morgan("tiny"));
 app.use(cors());

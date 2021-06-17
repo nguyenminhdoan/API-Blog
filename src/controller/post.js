@@ -49,14 +49,15 @@ exports.updatePost = (_id, desc, title) => {
   });
 };
 
-exports.deletePost = (_id) => {
+exports.deletePost = ({ _id, clientId }) => {
   return new Promise((resolve, reject) => {
     try {
-      Post.findByIdAndDelete({ _id })
+      Post.findOneAndDelete({ _id, clientId })
         .then((data) => resolve(data))
         .catch((error) => reject(error));
     } catch (error) {
       reject(error);
+      console.log(error);
     }
   });
 };
