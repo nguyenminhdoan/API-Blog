@@ -26,6 +26,11 @@ const UserSchema = new Schema(
         maxlength: 500,
         default: "",
       },
+      addedAt: {
+        type: Date,
+        required: true,
+        default: Date.now(),
+      },
     },
   },
   { timestamps: true }

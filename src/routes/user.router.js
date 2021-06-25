@@ -6,6 +6,7 @@ const {
   storeUserRefreshJWT,
   getUserByEmail,
   updateNewPassword,
+  findByIdAndUpdate,
 } = require("../controller/user");
 const {
   hashPassword,
@@ -79,7 +80,7 @@ router.post("/login", async (req, res) => {
 
   if (!username || !password)
     return res.json({
-      status: "failed",
+      status: "error",
       message: "Invalid form submit",
     });
 
@@ -89,14 +90,14 @@ router.post("/login", async (req, res) => {
   if (!passFromDb)
     return res.json({
       status: "error",
-      message: "Invalid email or password",
+      message: " email or password are not correct",
     });
 
   const result = await comparePassword(password, passFromDb);
 
   if (!result)
     return res.json({
-      status: "failed",
+      status: "error",
       message: "Invalid email or password",
     });
 
@@ -193,6 +194,41 @@ router.patch("/reset-password", updatePasswordReqValid, async (req, res) => {
         message: "Your password has been updated successfully",
       });
     }
+  }
+});
+
+router.put("/:id", userAuth, async (req, res) => {
+  const _id = req.userId;
+  const { id } = req.params;
+  console.log(id);
+  const { username, email, password } = req.body;
+
+  if (_id === id) {
+    try {
+      const passwordHashed = await hashPassword(password);
+
+      const newObjUserUpdate = {
+        username,
+        email,
+        password: passwordHashed,
+      };
+
+      const result = await findByIdAndUpdate(_id, newObjUserUpdate);
+
+      if (result) {
+        return res.json({
+          status: "success",
+          data: result,
+        });
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  } else {
+    res.json({
+      status: "error",
+      error: "you can only update your account!!",
+    });
   }
 });
 

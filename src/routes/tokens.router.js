@@ -7,12 +7,14 @@ router.get("/", async (req, res) => {
   const { authorization } = req.headers;
 
   const decoded = await verifyAccessJWT(authorization);
+  console.log(decoded);
   if (!decoded.username)
     return res.status(403).json({
       message: "forbidden",
     });
   const userProfile = await getProfileUser(decoded.username);
   const dbRefreshToken = userProfile.refreshJWT.addedAt;
+  let tokenExp = userProfile.refreshJWT.addedAt;
 
   tokenExp = tokenExp.setDate(tokenExp.getDate() + 30);
   const today = new Date();

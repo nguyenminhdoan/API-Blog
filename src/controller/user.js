@@ -107,3 +107,25 @@ exports.storeUserRefreshJWT = (_id, token) => {
     }
   });
 };
+
+exports.findByIdAndUpdate = (_id, newObjUser) => {
+  return new Promise((resolve, reject) => {
+    try {
+      User.findByIdAndUpdate(
+        _id,
+        {
+          $set: newObjUser,
+        },
+        {
+          new: true,
+        }
+      )
+        .then((data) => resolve(data))
+
+        .catch((error) => reject(error));
+    } catch (error) {
+      reject(error);
+      console.log(error);
+    }
+  });
+};

@@ -30,15 +30,17 @@ router.post("/", userAuth, async (req, res) => {
 });
 
 // update post
-router.put("/:id", userAuth, async (req, res) => {
-  const { username, desc, title } = req.body;
-  const id = req.userId;
+router.put("/:_id", userAuth, async (req, res) => {
+  const { desc, title } = req.body;
+  const { _id } = req.params;
+  const userId = req.userId;
 
   try {
-    const post = await findPostById(id);
-    if (post.username === username) {
-      const postUpdate = await updatePost(id, desc, title);
-      res.json({ status: "error", data: postUpdate });
+    const post = await findPostById(_id);
+    console.log(typeof userId);
+    if (userId === post.clientId.toString()) {
+      const postUpdate = await updatePost(_id, desc, title);
+      res.json({ status: "success", data: postUpdate });
     } else {
       res.status(401).json("You can update only your post!");
     }
@@ -51,6 +53,7 @@ router.put("/:id", userAuth, async (req, res) => {
 // Delete post
 router.delete("/:_id", userAuth, async (req, res) => {
   const clientId = req.userId;
+  console.log(clientId);
   const { _id } = req.params;
   try {
     const result = await deletePost({ _id, clientId });
