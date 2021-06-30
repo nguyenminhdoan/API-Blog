@@ -95,11 +95,11 @@ router.post("/login", async (req, res) => {
 
   const result = await comparePassword(password, passFromDb);
 
-  if (!result)
-    return res.json({
-      status: "error",
-      message: "Invalid email or password",
-    });
+  // if (!result)
+  //   return res.json({
+  //     status: "error",
+  //     message: "Invalid email or password",
+  //   });
 
   const accessJWT = await createAccessJWT(user.username, `${user._id}`);
   const refreshJWT = await createRefreshJWT(user.username, `${user._id}`);

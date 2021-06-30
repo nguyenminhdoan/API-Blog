@@ -68,6 +68,7 @@ exports.getAllPost = (username, catName) => {
       let posts;
       if (username) {
         posts = Post.find({ username })
+
           .then((data) => resolve(data))
           .catch((error) => reject(error));
       } else if (catName) {
@@ -83,6 +84,20 @@ exports.getAllPost = (username, catName) => {
           .then((data) => resolve(data))
           .catch((error) => reject(error));
       }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+exports.paginate = (skip, limit) => {
+  return new Promise((resolve, reject) => {
+    try {
+      Post.find()
+        .skip(skip)
+        .limit(limit)
+        .then((data) => resolve(data))
+        .catch((error) => reject(error));
     } catch (error) {
       reject(error);
     }

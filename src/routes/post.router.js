@@ -5,6 +5,7 @@ const {
   updatePost,
   deletePost,
   getAllPost,
+  paginate,
 } = require("../controller/post");
 const { userAuth } = require("../middlewares/authorization.middleware");
 const { createNewPostValid } = require("../middlewares/formAuthorization");
@@ -23,9 +24,21 @@ router.post("/", userAuth, async (req, res) => {
       categories,
     };
     const newPost = await createNewPost(objPost);
-    return res.json({ status: "success", data: newPost });
+    return res.json({
+      status: "success",
+      data: newPost,
+      message: "Your post has been created successfully",
+    });
   } catch (error) {
-    res.json({ status: "error", message: error.message });
+    let msg = "E11000 duplicate key error collection";
+    res.json({
+      status: "error",
+      message: `${
+        msg
+          ? `Title has been created already, please try another title`
+          : err.message
+      }`,
+    });
   }
 });
 
@@ -76,7 +89,30 @@ router.delete("/:_id", userAuth, async (req, res) => {
     res.json({ status: "error", message: error.message });
   }
 });
+// paginate post
+router.get("/page", async (req, res) => {
+  const limit = +req.query.equal;
+  const page = req.query.page;
+  const skip = (page - 1) * 5;
 
+  try {
+    const result = await paginate(skip, limit);
+    if (result) {
+      const posts = await getAllPost();
+      return res.json({
+        status: "success",
+        data: result,
+        page: {
+          _page: page,
+          _limit: limit,
+          _total: posts.length,
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+});
 // Get specific post
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
@@ -110,4 +146,5 @@ router.get("/", async (req, res) => {
     res.json({ status: "error", message: error.message });
   }
 });
+
 module.exports = router;
