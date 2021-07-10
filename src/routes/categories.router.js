@@ -2,7 +2,7 @@ const router = require("express").Router();
 const { createNewCategory, findCate } = require("../controller/category");
 const { userAuth } = require("../middlewares/authorization.middleware");
 
-router.post("/", userAuth, async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { name } = req.body;
     const newCat = await createNewCategory(name);

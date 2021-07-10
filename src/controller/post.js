@@ -2,10 +2,14 @@ const Post = require("../model/Post");
 
 exports.createNewPost = (objPost) => {
   return new Promise((resolve, reject) => {
-    Post(objPost)
-      .save()
-      .then((data) => resolve(data))
-      .catch((error) => reject(error));
+    try {
+      Post(objPost)
+        .save()
+        .then((data) => resolve(data))
+        .catch((error) => reject(error));
+    } catch (error) {
+      console.log(error.message);
+    }
   });
 };
 
@@ -100,6 +104,20 @@ exports.paginate = (skip, limit) => {
         .catch((error) => reject(error));
     } catch (error) {
       reject(error);
+    }
+  });
+};
+
+exports.search = (txtSearch, limit, skip) => {
+  return new Promise((resolve, reject) => {
+    try {
+      Post.find({ title: { $regex: txtSearch } })
+        .skip(skip)
+        .limit(limit)
+        .then((data) => resolve(data))
+        .catch((error) => reject(error));
+    } catch (error) {
+      console.log(error.message);
     }
   });
 };

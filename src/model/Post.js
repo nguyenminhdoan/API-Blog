@@ -30,6 +30,7 @@ const PostSchema = new Schema(
   { timestamps: true }
 );
 
+PostSchema.index({ title: "text", desc: "text" });
 const Post = model("Post", PostSchema);
 
 module.exports = Post;

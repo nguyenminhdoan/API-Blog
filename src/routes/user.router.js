@@ -51,8 +51,8 @@ router.post("/register", createNewUserValid, async (req, res) => {
     const passwordHashed = await hashPassword(password);
 
     const newObjUser = {
-      username,
-      email,
+      username: username.toLowerCase(),
+      email: email.toLowerCase(),
       password: passwordHashed,
     };
 
@@ -197,11 +197,11 @@ router.patch("/reset-password", updatePasswordReqValid, async (req, res) => {
   }
 });
 
+// update account
 router.put("/:id", userAuth, async (req, res) => {
   const _id = req.userId;
   const { id } = req.params;
-  console.log(id);
-  const { username, email, password } = req.body;
+  const { username, email, password, profilePic } = req.body;
 
   if (_id === id) {
     try {
@@ -210,6 +210,7 @@ router.put("/:id", userAuth, async (req, res) => {
       const newObjUserUpdate = {
         username,
         email,
+        profilePic,
         password: passwordHashed,
       };
 
@@ -225,9 +226,9 @@ router.put("/:id", userAuth, async (req, res) => {
       console.log(error.message);
     }
   } else {
-    res.json({
+    return res.json({
       status: "error",
-      error: "you can only update your account!!",
+      message: "this username or email has already existed, please try again",
     });
   }
 });

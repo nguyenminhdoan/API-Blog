@@ -6,6 +6,7 @@ const {
   deletePost,
   getAllPost,
   paginate,
+  search,
 } = require("../controller/post");
 const { userAuth } = require("../middlewares/authorization.middleware");
 const { createNewPostValid } = require("../middlewares/formAuthorization");
@@ -50,7 +51,6 @@ router.put("/:_id", userAuth, async (req, res) => {
 
   try {
     const post = await findPostById(_id);
-    console.log(typeof userId);
     if (userId === post.clientId.toString()) {
       const postUpdate = await updatePost(_id, desc, title);
       res.json({ status: "success", data: postUpdate });
@@ -66,7 +66,7 @@ router.put("/:_id", userAuth, async (req, res) => {
 // Delete post
 router.delete("/:_id", userAuth, async (req, res) => {
   const clientId = req.userId;
-  console.log(clientId);
+  // console.log(clientId);
   const { _id } = req.params;
   try {
     const result = await deletePost({ _id, clientId });
@@ -93,7 +93,7 @@ router.delete("/:_id", userAuth, async (req, res) => {
 router.get("/page", async (req, res) => {
   const limit = +req.query.equal;
   const page = req.query.page;
-  const skip = (page - 1) * 5;
+  const skip = (page - 1) * 4;
 
   try {
     const result = await paginate(skip, limit);
@@ -108,6 +108,22 @@ router.get("/page", async (req, res) => {
           _total: posts.length,
         },
       });
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
+// full-text search
+router.post("/search", async (req, res) => {
+  const { title } = req.body;
+  const limit = +req.query.equal;
+  const page = req.query.page;
+  const skip = (page - 1) * limit;
+  try {
+    const result = await search(title, limit, skip);
+    if (result) {
+      return res.json({ status: "success", data: result });
     }
   } catch (error) {
     console.log(error.message);
