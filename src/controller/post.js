@@ -94,16 +94,28 @@ exports.getAllPost = (username, catName) => {
   });
 };
 
-exports.paginate = (skip, limit) => {
+// exports.paginate = (skip, limit) => {
+//   return new Promise((resolve, reject) => {
+//     try {
+//       Post.find()
+//         .skip(skip)
+//         .limit(limit)
+//         .then((data) => resolve(data))
+//         .catch((error) => reject(error));
+//     } catch (error) {
+//       reject(error);
+//     }
+//   });
+// };
+
+exports.searchAllPosts = (txtSearch) => {
   return new Promise((resolve, reject) => {
     try {
-      Post.find()
-        .skip(skip)
-        .limit(limit)
+      Post.find({ title: { $regex: txtSearch } })
         .then((data) => resolve(data))
         .catch((error) => reject(error));
     } catch (error) {
-      reject(error);
+      console.log(error.message);
     }
   });
 };

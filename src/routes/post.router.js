@@ -5,8 +5,9 @@ const {
   updatePost,
   deletePost,
   getAllPost,
-  paginate,
+  // paginate,
   search,
+  searchAllPosts,
 } = require("../controller/post");
 const { userAuth } = require("../middlewares/authorization.middleware");
 const { createNewPostValid } = require("../middlewares/formAuthorization");
@@ -90,40 +91,55 @@ router.delete("/:_id", userAuth, async (req, res) => {
   }
 });
 // paginate post
-router.get("/page", async (req, res) => {
-  const limit = +req.query.equal;
-  const page = req.query.page;
-  const skip = (page - 1) * 4;
+// router.get("/page", async (req, res) => {
+//   const limit = +req.query.equal;
+//   const page = req.query.page;
+//   const skip = (page - 1) * 4;
 
-  try {
-    const result = await paginate(skip, limit);
-    if (result) {
-      const posts = await getAllPost();
-      return res.json({
-        status: "success",
-        data: result,
-        page: {
-          _page: page,
-          _limit: limit,
-          _total: posts.length,
-        },
-      });
-    }
-  } catch (error) {
-    console.log(error.message);
-  }
-});
+//   try {
+//     const result = await paginate(skip, limit);
+//     if (result) {
+//       const posts = await getAllPost();
+//       return res.json({
+//         status: "success",
+//         data: result,
+//         page: {
+//           _page: page,
+//           _limit: limit,
+//           _total: posts.length,
+//         },
+//       });
+//     }
+//   } catch (error) {
+//     console.log(error.message);
+//   }
+// });
 
-// full-text search
+// regex search
 router.post("/search", async (req, res) => {
   const { title } = req.body;
   const limit = +req.query.equal;
   const page = req.query.page;
   const skip = (page - 1) * limit;
   try {
+    const allPostsSearch = await searchAllPosts(title);
     const result = await search(title, limit, skip);
-    if (result) {
-      return res.json({ status: "success", data: result });
+    if (result && result.length) {
+      return res.json({
+        status: "success",
+        data: result,
+        page: {
+          _page: page,
+          _limit: limit,
+          _total: allPostsSearch.length,
+        },
+      });
+    } else {
+      return res.json({
+        status: "error",
+        message: "No posts found",
+        data: result,
+      });
     }
   } catch (error) {
     console.log(error.message);

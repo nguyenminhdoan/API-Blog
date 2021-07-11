@@ -43,6 +43,6 @@ app.use("/api/post", PostRouter);
 app.use("/api/category", CategoriesRouter);
 app.use("/api/token", TokenRouter);
 
-app.listen(3001, () => {
-  console.log("server started on port 3001");
+app.listen(3003, () => {
+  console.log("server started on port 3003");
 });
