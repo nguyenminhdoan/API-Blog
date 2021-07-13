@@ -13,10 +13,11 @@ const { userAuth } = require("../middlewares/authorization.middleware");
 const { createNewPostValid } = require("../middlewares/formAuthorization");
 
 // create new post
-router.post("/", userAuth, async (req, res) => {
+router.post("/", userAuth, createNewPostValid, async (req, res) => {
   try {
     const { title, desc, photo, username, categories } = req.body;
     const userId = req.userId;
+
     const objPost = {
       clientId: userId,
       title,
@@ -26,11 +27,13 @@ router.post("/", userAuth, async (req, res) => {
       categories,
     };
     const newPost = await createNewPost(objPost);
-    return res.json({
-      status: "success",
-      data: newPost,
-      message: "Your post has been created successfully",
-    });
+    if (newPost) {
+      return res.json({
+        status: "success",
+        data: newPost,
+        message: "Your post has been created successfully",
+      });
+    }
   } catch (error) {
     let msg = "E11000 duplicate key error collection";
     res.json({
@@ -41,6 +44,10 @@ router.post("/", userAuth, async (req, res) => {
           : err.message
       }`,
     });
+    // res.json({
+    //   status: "error",
+    //   message: error.message,
+    // });
   }
 });
 

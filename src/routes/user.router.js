@@ -208,7 +208,7 @@ router.put("/:id", userAuth, async (req, res) => {
       const passwordHashed = await hashPassword(password);
 
       const newObjUserUpdate = {
-        username,
+        username: username.toLowerCase(),
         email,
         profilePic,
         password: passwordHashed,
@@ -220,10 +220,24 @@ router.put("/:id", userAuth, async (req, res) => {
         return res.json({
           status: "success",
           data: result,
+          message: "Your profile has been updated, please login again",
+        });
+      } else {
+        return res.json({
+          status: "error",
+          message: "Email or Username has already existed, please try again!",
         });
       }
     } catch (error) {
-      console.log(error.message);
+      let msg = "E11000 duplicate key error collection";
+      res.json({
+        status: "error",
+        message: `${
+          msg
+            ? `Email or Username has already existed, please try again!`
+            : err.message
+        }`,
+      });
     }
   } else {
     return res.json({
